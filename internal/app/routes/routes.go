@@ -11,7 +11,7 @@ func SetupRoutes(router *gin.Engine) {
 	{
 		authRoutes := apiRoutes.Group("/auth")
 		{
-			authRoutes.POST("/login", gin.WrapF(auth.Login))
+			authRoutes.POST("/login", auth.Login)
 			authRoutes.POST("/register", gin.WrapF(auth.Register))
 		}
 	}
