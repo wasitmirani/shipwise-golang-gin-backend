@@ -4,15 +4,24 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// User represents a user in the system// User struct to represent a user
+// User represents a user in the system
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required,min=3"`
+	Password string `json:"password" binding:"required,min=6"`
 }
+
+// ValidationError represents a structured validation error response
+type ValidationError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
+}
+
 
 // Mock database of users
 var users = map[string]string{
@@ -32,6 +41,30 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate username
+	if len(user.Username) < 3 {
+		validationError := ValidationError{
+			Field:   "username",
+			Message: "Username must be at least 3 characters long",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(validationError)
+		return
+	}
+
+	// Validate password
+	if len(user.Password) < 6 {
+		validationError := ValidationError{
+			Field:   "password",
+			Message: "Password must be at least 6 characters long",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(validationError)
+		return
+	}
+
 	// Here you would typically add code to save the user to a database
 	// For simplicity, we'll just return a success message
 
@@ -42,7 +75,31 @@ func Register(w http.ResponseWriter, r *http.Request) {
 // Login handles the login request
 func Login(c *gin.Context) {
 	var user User
+
 	if err := c.ShouldBindJSON(&user); err != nil {
+		// Handle validation errors
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			var errors []ValidationError
+			for _, e := range validationErrors {
+				var message string
+				switch e.Tag() {
+				case "required":
+					message = "This field is required"
+				case "min":
+					if e.Field() == "Username" {
+						message = "Username must be at least 3 characters long"
+					} else if e.Field() == "Password" {
+						message = "Password must be at least 6 characters long"
+					}
+				}
+				errors = append(errors, ValidationError{
+					Field:   e.Field(),
+					Message: message,
+				})
+			}
+			c.JSON(http.StatusBadRequest, gin.H{"errors": errors})
+			return
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}

@@ -6,23 +6,10 @@ import (
 )
 
 // User represents a user in the system
-type User struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
 // GetUser handles the retrieval of a user by ID
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	user := User{
-		ID:    1,
-		Name:  "John Doe",
-		Email: "john.doe@example.com",
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
+
 
 // CreateUser handles the creation of a new user
 func CreateUser(w http.ResponseWriter, r *http.Request) {

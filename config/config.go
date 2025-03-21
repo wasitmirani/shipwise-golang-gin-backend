@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	// "github.com/spf13/viper"
+	// "github.com/joho/godotenv"
+)
 
 type Config struct {
 	DBHost     string
@@ -12,16 +15,25 @@ type Config struct {
 }
 
 func LoadConfig() Config {
-	viper.SetConfigFile(".env")
-	viper.AutomaticEnv()
-	viper.ReadInConfig()
+	// if err := godotenv.Load(".env"); err != nil {
+	// 	panic("Error loading .env file: " + err.Error())
+	// }
+	// if _, err := godotenv.Read(".env"); err != nil {
+	// 	panic("Error reading .env file: " + err.Error())
+	// }
+	// viper.AutomaticEnv()
+
+	// if err := viper.ReadInConfig(); err != nil {
+	// 	panic("Error reading .env file: " + err.Error())
+	// }
 
 	return Config{
-		DBHost:     viper.GetString("DB_HOST"),
-		DBPort:     viper.GetString("DB_PORT"),
-		DBUser:     viper.GetString("DB_USER"),
-		DBPassword: viper.GetString("DB_PASSWORD"),
-		DBName:     viper.GetString("DB_NAME"),
-		JWTSecret:  viper.GetString("JWT_SECRET"),
+		DBHost:     "localhost",
+		DBPort:     "5432",
+		DBUser:    "postgres",
+		DBPassword: "root",
+		DBName:     "nextship_db",
+		JWTSecret:  "secret",
 	}
 }
+

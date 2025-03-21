@@ -1,11 +1,12 @@
 package main
 
 import (
-	"shipwise/config"
-	database "shipwise/db"
-	"shipwise/internal/app/routes"
 	"log"
 	"os"
+	"shipwise/config"
+	database "shipwise/db"
+	"shipwise/db/migrations"
+	"shipwise/internal/app/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,11 +14,14 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
+	// Initialize the database connection
 	db, err := database.InitPostgres(cfg)
 	if err != nil {
-		log.Fatal("Failed to connect to database", err)
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	defer db.Close()
+
+	// Run migrations by passing the db instance
+	migrations.RunMigrations(db)
 
 	r := gin.Default()
 	routes.SetupRoutes(r)
