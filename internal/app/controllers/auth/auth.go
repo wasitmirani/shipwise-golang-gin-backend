@@ -22,7 +22,6 @@ type ValidationError struct {
 	Message string `json:"message"`
 }
 
-
 // Mock database of users
 var users = map[string]string{
 	"admin": "password123",
@@ -84,7 +83,8 @@ func Login(c *gin.Context) {
 				var message string
 				switch e.Tag() {
 				case "required":
-					message = "This field is required"
+					message = e.Field() + " is required"
+
 				case "min":
 					if e.Field() == "Username" {
 						message = "Username must be at least 3 characters long"
